@@ -42,7 +42,7 @@ np.set_printoptions(suppress=True)
 from typing import TYPE_CHECKING, List, Dict, Union
 from numpy.typing import NDArray
 from .utils import (FractionLike, FloatInt, VertexType, EdgeType, get_z_box_label,
-                    get_triangle_partner)
+                    vertex_is_triangle, vertex_is_triangle_output, get_triangle_partner)
 if TYPE_CHECKING:
     from .graph.base import BaseGraph, VT, ET
     from .circuit import Circuit
@@ -95,6 +95,11 @@ def triangle_to_tensor() -> np.ndarray:
     """Tensor of the triangle body vertex. Axis 0 = output (row),
     axis 1 = input (column). Matrix is [[1,1],[0,1]]."""
     return np.array([[1, 1], [0, 1]], dtype=complex)
+
+def triangle_inverse_to_tensor() -> np.ndarray:
+    """Tensor of the triangle-inverse body vertex. Axis 0 = output (row),
+    axis 1 = input (column). Matrix is [[1,-1],[0,1]] (inverse of the triangle)."""
+    return np.array([[1, -1], [0, 1]], dtype=complex)
 
 def pop_and_shift(verts, indices):
     res = [indices[v].pop() for v in verts if v in indices]
@@ -213,6 +218,12 @@ def tensorfy_naive(g: 'BaseGraph[VT,ET]', preserve_scalar: bool = True) -> NDArr
                 elif types[v] == VertexType.TRIANGLE_OUTPUT:
                     if phase != 0: raise ValueError("Phase on triangle")
                     t = triangle_to_tensor()
+                elif types[v] == VertexType.TRIANGLE_INVERSE_INPUT:
+                    if phase != 0: raise ValueError("Phase on triangle")
+                    t = np.identity(2, dtype=complex)  # tip forwards its wire
+                elif types[v] == VertexType.TRIANGLE_INVERSE_OUTPUT:
+                    if phase != 0: raise ValueError("Phase on triangle")
+                    t = triangle_inverse_to_tensor()
                 else:
                     raise ValueError("Vertex %s has non-ZXH type but is not an input or output" % str(v))
             for sl in self_loops:
@@ -232,7 +243,7 @@ def tensorfy_naive(g: 'BaseGraph[VT,ET]', preserve_scalar: bool = True) -> NDArr
                 if rows[n] < r or (rows[n] == r and n < v):
                     leg_ety.append((n, g.edge_type(e)))
             leg_ety.sort(key=lambda ne: ne[1] == EdgeType.HADAMARD)
-            if types[v] == VertexType.TRIANGLE_OUTPUT:
+            if vertex_is_triangle_output(types[v]):
                 # The triangle body's tensor is asymmetric, so its two legs must
                 # be bound to specific neighbours: the internal W_IO edge is the
                 # input/column, the external edge is the output/row. Reorder t so

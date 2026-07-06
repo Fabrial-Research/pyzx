@@ -96,6 +96,10 @@ def _to_tikz(g: BaseGraph[VT,ET], draw_scalar:bool = False,
             style = settings.tikz_classes['triangle input']
         elif ty == VertexType.TRIANGLE_OUTPUT:
             style = settings.tikz_classes['triangle']
+        elif ty == VertexType.TRIANGLE_INVERSE_INPUT:
+            style = settings.tikz_classes['triangle inverse input']
+        elif ty == VertexType.TRIANGLE_INVERSE_OUTPUT:
+            style = settings.tikz_classes['triangle inverse']
         elif ty == VertexType.Z_BOX:
             style = settings.tikz_classes['Z box']
         else:
@@ -242,6 +246,8 @@ synonyms_w_input = ['w input']
 synonyms_w_output = ['w output', 'w', 'w triangle']
 synonyms_triangle_input = ['triangle input']
 synonyms_triangle_output = ['triangle', 'triangle output']
+synonyms_triangle_inverse_input = ['triangle inverse input']
+synonyms_triangle_inverse_output = ['triangle inverse', 'triangle inverse output']
 synonyms_z_box = ['z box', 'zbox', 'zbox phase', 'green box', 'green box phase',
                   'green phase box', 'white box', 'white box phase', 'white phase box']
 synonyms_dummy = ['text', 'label', 'dummy node', 'dummy spider', 'dummy phase spider']
@@ -500,6 +506,8 @@ def tikz_to_graph(
         elif style.lower() in synonyms_w_output: ty = VertexType.W_OUTPUT
         elif style.lower() in synonyms_triangle_input: ty = VertexType.TRIANGLE_INPUT
         elif style.lower() in synonyms_triangle_output: ty = VertexType.TRIANGLE_OUTPUT
+        elif style.lower() in synonyms_triangle_inverse_input: ty = VertexType.TRIANGLE_INVERSE_INPUT
+        elif style.lower() in synonyms_triangle_inverse_output: ty = VertexType.TRIANGLE_INVERSE_OUTPUT
         elif style.lower() in synonyms_z_box: ty = VertexType.Z_BOX
         elif style.lower() in synonyms_dummy: ty = VertexType.DUMMY
         else:

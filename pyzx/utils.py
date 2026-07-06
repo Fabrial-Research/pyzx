@@ -88,6 +88,8 @@ class VertexType(IntEnum):
     Z_BOX = 6
     TRIANGLE_INPUT = 7
     TRIANGLE_OUTPUT = 8
+    TRIANGLE_INVERSE_INPUT = 9
+    TRIANGLE_INVERSE_OUTPUT = 10
     DUMMY = 99
 
 def vertex_is_zx(ty: VertexType) -> bool:
@@ -127,8 +129,18 @@ def get_w_io(g, v):
     return v2, v
 
 def vertex_is_triangle(ty: VertexType) -> bool:
-    """Check if a vertex type is part of a triangle node (tip or body)."""
-    return ty == VertexType.TRIANGLE_INPUT or ty == VertexType.TRIANGLE_OUTPUT
+    """Check if a vertex type is part of a triangle node (tip or body),
+    of either the triangle or the triangle-inverse flavour."""
+    return ty in (VertexType.TRIANGLE_INPUT, VertexType.TRIANGLE_OUTPUT,
+                  VertexType.TRIANGLE_INVERSE_INPUT, VertexType.TRIANGLE_INVERSE_OUTPUT)
+
+def vertex_is_triangle_input(ty: VertexType) -> bool:
+    """Tip vertex of either triangle flavour (forwards its wire)."""
+    return ty == VertexType.TRIANGLE_INPUT or ty == VertexType.TRIANGLE_INVERSE_INPUT
+
+def vertex_is_triangle_output(ty: VertexType) -> bool:
+    """Body vertex of either triangle flavour (carries the 2x2 matrix)."""
+    return ty == VertexType.TRIANGLE_OUTPUT or ty == VertexType.TRIANGLE_INVERSE_OUTPUT
 
 def get_triangle_partner(g, v):
     """Return the other vertex of a triangle pair (tip <-> body)."""
@@ -143,7 +155,7 @@ def get_triangle_partner(g, v):
 def get_triangle_io(g, v):
     """Return (tip, body) for a triangle pair given either vertex."""
     v2 = get_triangle_partner(g, v)
-    if g.type(v) == VertexType.TRIANGLE_INPUT:
+    if vertex_is_triangle_input(g.type(v)):
         return v, v2
     return v2, v
 
@@ -212,6 +224,8 @@ tikz_classes = {
     'W input': 'W input',
     'triangle input': 'triangle input',
     'triangle': 'triangle',
+    'triangle inverse input': 'triangle inverse input',
+    'triangle inverse': 'triangle inverse',
     'dummy': 'label',
     'edge': '',
     'H-edge': 'hadamard edge',
