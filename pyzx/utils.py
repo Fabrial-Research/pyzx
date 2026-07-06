@@ -86,6 +86,8 @@ class VertexType(IntEnum):
     W_INPUT = 4
     W_OUTPUT = 5
     Z_BOX = 6
+    TRIANGLE_INPUT = 7
+    TRIANGLE_OUTPUT = 8
     DUMMY = 99
 
 def vertex_is_zx(ty: VertexType) -> bool:
@@ -121,6 +123,27 @@ def get_w_partner(g, v):
 def get_w_io(g, v):
     v2 = get_w_partner(g, v)
     if g.type(v) == VertexType.W_INPUT:
+        return v, v2
+    return v2, v
+
+def vertex_is_triangle(ty: VertexType) -> bool:
+    """Check if a vertex type is part of a triangle node (tip or body)."""
+    return ty == VertexType.TRIANGLE_INPUT or ty == VertexType.TRIANGLE_OUTPUT
+
+def get_triangle_partner(g, v):
+    """Return the other vertex of a triangle pair (tip <-> body)."""
+    assert vertex_is_triangle(g.type(v))
+    for edge in g.incident_edges(v):
+        if g.edge_type(edge) == EdgeType.W_IO:
+            u = edge[0] if edge[1] == v else edge[1]
+            if vertex_is_triangle(g.type(u)):
+                return u
+    assert False
+
+def get_triangle_io(g, v):
+    """Return (tip, body) for a triangle pair given either vertex."""
+    v2 = get_triangle_partner(g, v)
+    if g.type(v) == VertexType.TRIANGLE_INPUT:
         return v, v2
     return v2, v
 
@@ -187,6 +210,8 @@ tikz_classes = {
     'H': 'hadamard',
     'W': 'W triangle',
     'W input': 'W input',
+    'triangle input': 'triangle input',
+    'triangle': 'triangle',
     'dummy': 'label',
     'edge': '',
     'H-edge': 'hadamard edge',
