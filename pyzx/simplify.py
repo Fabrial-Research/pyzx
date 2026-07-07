@@ -91,6 +91,13 @@ bialg_op_simp: RewriteSimpGraph = RewriteSimpGraph(safe_apply_bialgebra_op, simp
 """Applies the bialgebra rule in reverse to a given pair of Z and X spiders. Can be run automatically on the entire graph."""
 bialg_op_simp.is_match = is_bialg_op_match # type: ignore
 
+zw_bialg_simp: RewriteSimpDoubleVertex = RewriteSimpDoubleVertex(check_zw_bialgebra, unsafe_zw_bialgebra)
+"""Applies the Z-W bialgebra rule, expanding a Z-spider / W-node input pair into the bipartite W/Z form."""
+
+zw_bialg_op_simp: RewriteSimpGraph = RewriteSimpGraph(safe_apply_zw_bialgebra_op, simp_zw_bialgebra_op)
+"""Applies the Z-W bialgebra rule in reverse, collapsing the bipartite W/Z region to a single Z-W pair."""
+zw_bialg_op_simp.is_match = is_zw_bialg_op_match  # type: ignore
+
 fuse_simp: RewriteSimpDoubleVertex = RewriteSimpDoubleVertex(check_fuse, unsafe_fuse, None, False, True)
 """Performs spider fusion by fusing two matching Z X or w spiders into one. Can be run automatically on the entire graph."""
 

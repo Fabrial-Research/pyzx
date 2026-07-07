@@ -16,6 +16,7 @@
 
 from .color_change_rule         import *
 from .bialgebra_rule            import *
+from .zw_bialgebra_rule         import *
 from .fuse_rule                 import *
 from .remove_id_rule            import *
 from .copy_rule                 import *
